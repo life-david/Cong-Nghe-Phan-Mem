@@ -1,0 +1,6 @@
+Nhiệm vụ buổi trước thầy giao..
+1. Plan
+2. Tạo git, repo
+3. Tạo kanbun
+4. Tạo diagram net
+5. Agile cho dự án
