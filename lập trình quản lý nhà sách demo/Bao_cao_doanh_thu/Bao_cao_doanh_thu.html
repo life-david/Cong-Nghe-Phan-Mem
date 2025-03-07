@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Doanh Thu</title>
+    <link rel="stylesheet" href="Bao_cao_doanh_thu.css">
+</head>
+
+<body>
+    <header>
+        <h1>Báo Cáo Doanh Thu</h1>
+    </header>
+    <main>
+        <!-- Khu vực các nút điều khiển -->
+        <div class="control-buttons">
+            <button class="add-btn" onclick="taoBaoCao()">Tạo Báo Cáo Doanh Thu</button>
+            <button class="view-btn" onclick="xemBaoCao()">Xem Báo Cáo Doanh Thu</button>
+            <button class="back-btn" onclick="quayLai()">Quay Lại</button>
+        </div>
+
+        <h2>Danh Sách Báo Cáo Doanh Thu</h2>
+        <table id="report-table">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Doanh Thu</th>
+                    <th>Chi Tiết</th>
+                </tr>
+            </thead>
+            <tbody id="report-list">
+                <!-- Dữ liệu báo cáo sẽ hiển thị ở đây -->
+            </tbody>
+        </table>
+    </main>
+    <script src="Bao_cao_doanh_thu.js"></script>
+</body>
+
+</html>

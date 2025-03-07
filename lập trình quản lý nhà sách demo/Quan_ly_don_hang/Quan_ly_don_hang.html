@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Hàng</title>
+    <link rel="stylesheet" href="Quan_ly_don_hang.css">
+</head>
+
+<body>
+    <header>
+        <h1>Quản Lý Đơn Hàng</h1>
+    </header>
+    <main>
+        <!-- Khu vực các nút điều khiển -->
+        <div class="control-buttons">
+            <button class="add-btn" onclick="taoDonHang()">Tạo Đơn Hàng</button>
+            <button class="view-btn" onclick="xemLichSu()">Xem Lịch Sử Đơn Hàng</button>
+            <button class="list-same-day-btn" onclick="lietKeDonCungNgay()">Liệt Kê Đơn Cùng Ngày</button>
+            <button class="list-same-customer-btn" onclick="lietKeDonCungKhachHang()">Liệt Kê Đơn Cùng Khách
+                Hàng</button>
+            <button class="delete-all-btn" onclick="xoaHetMa()">Xóa Hết Mã</button>
+            <button class="delete-by-id-btn" onclick="xoaDonHangTheoMa()">Xóa Đơn Hàng Theo Mã</button>
+            <button class="back-btn" onclick="quayLai()">Quay Lại</button>
+        </div>
+
+        <h2>Danh Sách Đơn Hàng</h2>
+        <table id="order-table">
+            <thead>
+                <tr>
+                    <th>Mã Đơn Hàng</th>
+                    <th>Ngày</th>
+                    <th>Khách Hàng</th>
+                    <th>Chi Tiết</th>
+                </tr>
+            </thead>
+            <tbody id="order-list">
+                <!-- Dữ liệu đơn hàng sẽ hiển thị ở đây -->
+            </tbody>
+        </table>
+    </main>
+    <script src="Quan_ly_don_hang.js"></script>
+</body>
+
+</html>
