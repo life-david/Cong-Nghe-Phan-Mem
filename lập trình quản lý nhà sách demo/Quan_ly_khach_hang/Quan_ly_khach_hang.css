@@ -27,6 +27,42 @@ header {
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--cyber-2);
+    box-shadow: 0 0 10px var(--cyber-2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: #000;
+    /* Set initial text color to black */
+}
+
+.control-buttons input:hover,
+.control-buttons select:hover,
+.control-buttons button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px var(--cyber-1);
+    color: #fff;
+    /* Change text color to white on hover */
+}
+
+.control-buttons input::before,
+.control-buttons select::before,
+.control-buttons button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.3), transparent);
+    transition: 0.5s;
+}
+
+.control-buttons input:hover::before,
+.control-buttons select:hover::before,
+.control-buttons button:hover::before {
+    left: 100%;
 }
 
 .search-btn {
@@ -68,8 +104,11 @@ table {
     border-collapse: collapse;
     background: white;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    border-radius: 10px;
+    /* Rounded corners */
     overflow: hidden;
+    border: 2px solid var(--cyber-2);
+    /* Border around the table */
 }
 
 th,
@@ -82,10 +121,33 @@ td {
 th {
     background: #007bff;
     color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+th::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.3), transparent);
+    transition: 0.5s;
+}
+
+th:hover::before {
+    left: 100%;
 }
 
 td {
     background: #f9f9f9;
+}
+
+td:hover {
+    background: #e0f7fa;
+    /* Light blue background on hover */
+    transition: background 0.3s ease;
 }
 
 .delete-btn {
