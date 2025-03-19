@@ -9,10 +9,11 @@
 </head>
 
 <body>
+    <div class="overlay"></div> <!-- Lớp overlay để làm nền lung linh -->
     <header>
         <h1>Quản Lý Nhân Viên</h1>
     </header>
-    <main>
+    <main class="container">
         <!-- Khu vực các nút điều khiển -->
         <div class="control-buttons">
             <input type="text" id="search" placeholder="Tìm nhân viên...">
@@ -23,11 +24,30 @@
                 <option value="address">Địa chỉ</option>
             </select>
             <button class="search-btn" onclick="timNhanVien()">Tìm</button>
-            <button class="add-btn" onclick="themNhanVien()">Thêm Nhân Viên</button>
             <button class="back-btn" onclick="quayLai()">Quay Lại</button>
         </div>
 
-        <h2>Danh Sách Nhân Viên</h2>
+        <!-- Panel thông tin nhân viên -->
+        <div id="employee-panel" class="employee-panel">
+            <h3>Thông Tin Nhân Viên</h3>
+            <label>Tên nhân viên:</label>
+            <input type="text" id="employee-name" />
+
+            <label>Email:</label>
+            <input type="email" id="employee-email" />
+
+            <label>Số điện thoại:</label>
+            <input type="text" id="employee-phone" />
+
+            <label>Địa chỉ:</label>
+            <input type="text" id="employee-address" />
+
+            <div class="control-buttons">
+                <button onclick="saveEmployeeInfo()">Lưu</button>
+            </div>
+        </div>
+
+        <h2 class="table-title">Danh Sách Nhân Viên</h2>
         <table id="employee-table">
             <thead>
                 <tr>
@@ -35,7 +55,7 @@
                     <th>Số Điện Thoại</th>
                     <th>Email</th>
                     <th>Địa Chỉ</th>
-                    <th>Hành Động</th>
+                    <th>Xóa</th>
                 </tr>
             </thead>
             <tbody id="employee-list">
