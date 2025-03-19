@@ -5,15 +5,18 @@ let orders = JSON.parse(localStorage.getItem("orders")) || [];
 let orderHeader = null;       // Lưu thông tin chung của đơn hàng (mã, ngày, khách hàng)
 let selectedBookOrder = null; // Lưu thông tin sách được chọn (tên sách, số lượng mua, tổng giá)
 
-// Hàm tạo đơn hàng mới
+// Biến toàn cục cho panel "Thông Tin Khách Hàng"
+let currentCustomerIndex = null; // Chỉ số (index) của đơn hàng trong mảng orders, để sửa khách hàng
+
+//--------------------------------------------------------------------
+// HÀM TẠO ĐƠN HÀNG + CHỌN SÁCH
+//--------------------------------------------------------------------
 function taoDonHang() {
-  // Nhập thông tin đơn hàng qua prompt
   let idInput = prompt("Nhập mã đơn hàng (tối đa 5 chữ số):");
   if (!idInput) {
     alert("Mã đơn hàng không được để trống!");
     return;
   }
-  // Chuyển mã đơn hàng thành số và đảm bảo nó tối đa 5 chữ số
   let idNumber = parseInt(idInput, 10);
   if (isNaN(idNumber)) {
     alert("Mã đơn hàng phải là số!");
@@ -23,32 +26,31 @@ function taoDonHang() {
     alert("Mã đơn hàng chỉ tối đa 5 chữ số!");
     return;
   }
-  // Định dạng mã đơn hàng thành chuỗi 5 ký tự (thêm số 0 ở đầu nếu cần)
   let formattedId = idNumber.toString().padStart(5, "0");
 
   let date = prompt("Nhập ngày đơn hàng (DD-MM-YYYY):");
   let customer = prompt("Nhập tên khách hàng:");
-  
-  // Nếu đủ thông tin, lưu thông tin đơn hàng chung vào biến orderHeader
+
   if (formattedId && date && customer) {
     orderHeader = { id: formattedId, date: formatDateToISO(date), customer };
-    // Sau đó, mở panel để chọn sách từ Quản Lý Sách
+    // Lưu tên khách hàng vào localStorage (nếu cần)
+    let customerData = { name, phone, email, address };
+localStorage.setItem("currentCustomer", JSON.stringify(customerData));
+
+    // Mở panel chọn sách
     openBookPanel();
   } else {
     alert("Thông tin đơn hàng không đầy đủ!");
   }
 }
 
-// Hàm hiển thị panel chọn sách
 function openBookPanel() {
   let panel = document.getElementById("book-panel");
-  panel.classList.add("show"); // Thêm lớp "show" để hiển thị panel
+  panel.classList.add("show");
 
-  // Lấy danh sách sách từ localStorage (Quản Lý Sách)
   let books = JSON.parse(localStorage.getItem("books")) || [];
   let bookSelectList = document.getElementById("book-select-list");
 
-  // Hiển thị danh sách sách trong bảng panel
   bookSelectList.innerHTML = books.map((book, index) => {
     return `<tr>
       <td>${book.name}</td>
@@ -59,22 +61,17 @@ function openBookPanel() {
   }).join("");
 }
 
-// Hàm ẩn panel chọn sách
 function closeBookPanel() {
   let panel = document.getElementById("book-panel");
   panel.classList.remove("show");
 }
 
-// Hàm xử lý khi người dùng chọn sách từ panel
 function selectBook(index) {
   let books = JSON.parse(localStorage.getItem("books")) || [];
   let book = books[index];
 
-  // Nhập số lượng mua của sách được chọn
   let qtyInput = prompt("Nhập số lượng sách mua (Có sẵn: " + book.quantity + "):");
   let qty = parseInt(qtyInput);
-  
-  // Kiểm tra số lượng nhập vào
   if (isNaN(qty) || qty <= 0) {
     alert("Số lượng không hợp lệ!");
     return;
@@ -83,82 +80,184 @@ function selectBook(index) {
     alert("Không đủ số lượng sách! Số lượng hiện có: " + book.quantity);
     return;
   }
-  
-  // Tính tổng giá trị đơn hàng dựa trên đơn giá của sách và số lượng mua
   let price = parseFloat(book.price);
   let totalValue = price * qty;
-  
-  // Lưu thông tin sách được chọn vào biến selectedBookOrder
+
   selectedBookOrder = { bookName: book.name, quantity: qty, totalValue: totalValue };
-  
-  closeBookPanel(); // Đóng panel chọn sách
-  completeOrderCreation(); // Hoàn tất quá trình tạo đơn hàng
+
+  closeBookPanel();
+  completeOrderCreation();
 }
 
-// Hàm hoàn tất quá trình tạo đơn hàng
 function completeOrderCreation() {
   if (!orderHeader || !selectedBookOrder) {
     alert("Thông tin đơn hàng không đầy đủ!");
     return;
   }
-  // Gộp thông tin đơn hàng chung và thông tin sách được chọn thành đối tượng đơn hàng
   let order = {
     id: orderHeader.id,
     date: orderHeader.date,
     customer: orderHeader.customer,
     bookName: selectedBookOrder.bookName,
     quantity: selectedBookOrder.quantity,
-    totalValue: selectedBookOrder.totalValue
+    totalValue: selectedBookOrder.totalValue,
+    profitRate: selectedBookOrder.profitRate || 20 // Mặc định lãi suất là 20%
   };
-  
-  // Thêm đơn hàng vào danh sách và lưu vào localStorage
+
   orders.push(order);
   localStorage.setItem("orders", JSON.stringify(orders));
-  
-  // Cập nhật doanh thu theo ngày: nếu chưa có, khởi tạo bằng 0, sau đó cộng thêm tổng giá của đơn hàng
-  updateRevenue(order.date, order.totalValue);
-  
-  // Cập nhật số lượng sách trong Quản Lý Sách (giảm số lượng theo sách được mua)
+
+  let profit = order.totalValue * (order.profitRate / 100);
+  updateRevenue(order.date, profit);
   updateBookQuantity(order.bookName, order.quantity);
-  
+
   alert("Đơn hàng đã được tạo, doanh thu cập nhật và số lượng sách giảm.");
-  
-  // Cập nhật bảng đơn hàng hiển thị
   updateOrderTable();
-  
+
   // Nếu có đơn hàng, hiển thị liên kết chuyển sang trang Báo Cáo Doanh Thu
   if (orders.length > 0) {
-    document.getElementById("hidden-revenue-link").style.display = "inline-block";
+    document.getElementById("hidden-revenue-link")?.style.setProperty("display", "inline-block");
   }
-  
+
   // Cuộn trang xuống để hiển thị bảng đơn hàng
-  document.getElementById("order-table").scrollIntoView({ behavior: "smooth" });
-  
-  // Reset thông tin tạm
+  document.getElementById("order-table")?.scrollIntoView({ behavior: "smooth" });
+
   orderHeader = null;
   selectedBookOrder = null;
 }
 
-// Hàm cập nhật doanh thu theo ngày
-function updateRevenue(date, amount) {
+//--------------------------------------------------------------------
+// HÀM QUẢN LÝ KHÁCH HÀNG (PANEL)
+//--------------------------------------------------------------------
+
+// Mở panel "Thông Tin Khách Hàng" để xem/sửa
+function openCustomerPanel(index) {
+  currentCustomerIndex = index; // Lưu lại index của đơn hàng
+  let order = orders[index];
+
+  // Lấy panel và các input
+  let panel = document.getElementById("customer-panel");
+  let nameInput = document.getElementById("customer-name");
+  let emailInput = document.getElementById("customer-email");
+  let phoneInput = document.getElementById("customer-phone");
+  let addressInput = document.getElementById("customer-address");
+
+  // Có thể bạn sẽ lưu trữ thông tin chi tiết khách hàng ở đâu đó
+  // Ở đây, ví dụ ta chỉ có 'customer' = tên, ta thêm 'email', 'phone', 'address' tạm
+  // => Tùy biến theo ý bạn
+  // Giả sử ta lưu 1 object "customerInfo" trong order, check trước
+  if (!order.customerInfo) {
+    order.customerInfo = {
+      name: order.customer || "",
+      email: "",
+      phone: "",
+      address: ""
+    };
+  }
+  // Hiển thị lên form
+  nameInput.value = order.customerInfo.name;
+  emailInput.value = order.customerInfo.email;
+  phoneInput.value = order.customerInfo.phone;
+  addressInput.value = order.customerInfo.address;
+
+  // Mở panel
+  panel.classList.add("show");
+}
+
+// Đóng panel "Thông Tin Khách Hàng"
+function closeCustomerPanel() {
+  let panel = document.getElementById("customer-panel");
+  panel.classList.remove("show");
+  currentCustomerIndex = null;
+}
+
+// Lưu thông tin khách hàng vào order
+function saveCustomerInfo() {
+  if (currentCustomerIndex == null) return;
+  let order = orders[currentCustomerIndex];
+
+  let nameInput = document.getElementById("customer-name").value;
+  let emailInput = document.getElementById("customer-email").value;
+  let phoneInput = document.getElementById("customer-phone").value;
+  let addressInput = document.getElementById("customer-address").value;
+
+  // Cập nhật order.customerInfo
+  order.customerInfo = {
+    name: nameInput,
+    email: emailInput,
+    phone: phoneInput,
+    address: addressInput
+  };
+  // Đồng thời, nếu muốn hiển thị "Khách Hàng" là name, ta cập nhật:
+  order.customer = nameInput;
+
+  localStorage.setItem("orders", JSON.stringify(orders));
+  updateOrderTable();
+
+  alert("Đã lưu thông tin khách hàng.");
+}
+
+// Tải thông tin khách hàng sang trang Quản Lý Khách Hàng
+// Tải thông tin khách hàng sang trang Quản Lý Khách Hàng
+function exportToCustomerPage() {
+    if (currentCustomerIndex === null || currentCustomerIndex === undefined) {
+        alert("Vui lòng chọn một khách hàng!");
+        return;
+    }
+
+    let order = orders[currentCustomerIndex];
+
+    if (!order || !order.customerInfo) {
+        alert("Không tìm thấy thông tin khách hàng để tải!");
+        return;
+    }
+
+    // Lưu vào LocalStorage
+    localStorage.setItem("selectedCustomer", JSON.stringify(order.customerInfo));
+
+    // Hiển thị thông báo & chuyển hướng
+    alert("Đã tải thông tin sang Quản Lý Khách Hàng!");
+    window.location.href = "Quan_Ly_khach_hang.html"; // Chuyển trang ngay lập tức
+}
+
+function loadCustomerInfo() {
+    let data = localStorage.getItem("selectedCustomer");
+    if (!data) {
+        alert("Không có dữ liệu khách hàng!");
+        return;
+    }
+
+    let customer = JSON.parse(data);
+
+    // Hiển thị dữ liệu vào bảng hoặc form
+    document.getElementById("customerName").innerText = customer.name;
+    document.getElementById("customerPhone").innerText = customer.phone;
+    document.getElementById("customerEmail").innerText = customer.email;
+    document.getElementById("customerAddress").innerText = customer.address;
+}
+
+// Khi trang load, tự động gọi hàm này
+document.addEventListener("DOMContentLoaded", loadCustomerInfo);
+
+//--------------------------------------------------------------------
+// DOANH THU & SỐ LƯỢNG SÁCH
+//--------------------------------------------------------------------
+function updateRevenue(date, profit) {
   let revenue = JSON.parse(localStorage.getItem("revenue")) || {};
   if (!revenue[date]) {
     revenue[date] = 0;
   }
-  revenue[date] += amount;
+  revenue[date] += profit;
   localStorage.setItem("revenue", JSON.stringify(revenue));
 }
 
-// Hàm cập nhật số lượng sách trong Quản Lý Sách
 function updateBookQuantity(bookName, quantityPurchased) {
   let books = JSON.parse(localStorage.getItem("books")) || [];
   let found = false;
   books = books.map(book => {
     if (book.name.toLowerCase() === bookName.toLowerCase()) {
       found = true;
-      // Giảm số lượng sách, đảm bảo không âm
       book.quantity = Math.max(book.quantity - quantityPurchased, 0);
-      // Cập nhật lại Tổng Giá của sách dựa trên số lượng mới và đơn giá
       book.totalPrice = book.quantity * parseFloat(book.price);
     }
     return book;
@@ -169,80 +268,132 @@ function updateBookQuantity(bookName, quantityPurchased) {
   localStorage.setItem("books", JSON.stringify(books));
 }
 
-// Hàm xóa đơn hàng theo chỉ số index
+//--------------------------------------------------------------------
+// QUẢN LÝ XÓA ĐƠN HÀNG
+//--------------------------------------------------------------------
 function xoaDonHangTheoMa(index) {
   let order = orders[index];
   if (confirm("Bạn có chắc muốn xóa đơn hàng " + order.id + "?")) {
     let revenue = JSON.parse(localStorage.getItem("revenue")) || {};
+    // Giả sử profit = (order.profitRate || 20)% của order.totalValue => ta phải trừ ra
+    let profit = order.totalValue * ((order.profitRate || 20) / 100);
     if (revenue[order.date]) {
-      revenue[order.date] -= order.totalValue;
+      revenue[order.date] -= profit;
       if (revenue[order.date] < 0) revenue[order.date] = 0;
       localStorage.setItem("revenue", JSON.stringify(revenue));
     }
-    // Khi xóa đơn hàng, số lượng sách không phục hồi
     orders.splice(index, 1);
     localStorage.setItem("orders", JSON.stringify(orders));
     updateOrderTable();
     if (orders.length === 0) {
-      document.getElementById("hidden-revenue-link").style.display = "none";
+      document.getElementById("hidden-revenue-link")?.style.setProperty("display", "none");
     }
     alert("Đã xóa đơn hàng " + order.id);
   }
 }
 
-// Hàm xóa hết các đơn hàng
 function xoaHetMa() {
   if (confirm("Bạn có chắc muốn xóa hết các đơn hàng?")) {
     orders = [];
     localStorage.setItem("orders", JSON.stringify(orders));
     localStorage.setItem("revenue", JSON.stringify({}));
     updateOrderTable();
-    document.getElementById("hidden-revenue-link").style.display = "none";
+    document.getElementById("hidden-revenue-link")?.style.setProperty("display", "none");
     alert("Đã xóa hết các đơn hàng.");
   }
 }
 
-// Hàm cập nhật bảng hiển thị danh sách đơn hàng
+//--------------------------------------------------------------------
+// CẬP NHẬT BẢNG ĐƠN HÀNG
+//--------------------------------------------------------------------
 function updateOrderTable() {
   let orderList = document.getElementById("order-list");
   orderList.innerHTML = orders.map((order, index) => {
     let displayDate = formatDateToDisplay(order.date);
-    return `<tr>
-      <td>${order.id}</td>
-      <td>${displayDate}</td>
-      <td>${order.customer}</td>
-      <td>${order.bookName}</td>
-      <td>${order.quantity}</td>
-      <td>${order.totalValue.toLocaleString()} VNĐ</td>
-      <td><button class="delete-btn" onclick="xoaDonHangTheoMa(${index})">Xóa</button></td>
-    </tr>`;
+    let profitRate = order.profitRate || 20;
+    let profit = order.totalValue * (profitRate / 100);
+    let sellingPrice = order.totalValue + profit;
+
+    // Thông tin khách hàng: hiển thị tên + nút "Chi Tiết"
+    // Bấm "Chi Tiết" sẽ mở panel "Thông Tin Khách Hàng"
+    let customerCell = `
+      ${order.customer || "N/A"}
+      <button onclick="openCustomerPanel(${index})" style="margin-left:5px;">Chi Tiết</button>
+    `;
+
+    return `
+      <tr>
+        <td>${order.id}</td>
+        <td>${displayDate}</td>
+        <td>${customerCell}</td>
+        <td>${order.bookName}</td>
+        <td>${order.quantity}</td>
+        <td>${sellingPrice.toLocaleString()} VNĐ</td>
+        <td class="toggleable">
+          <input type="number" value="${profitRate}" min="0" max="100" step="1"
+                 onchange="updateProfitRate(${index}, this.value)" /> %
+        </td>
+        <td class="toggleable">${profit.toLocaleString()} VNĐ</td>
+        <td><button class="delete-btn" onclick="xoaDonHangTheoMa(${index})">Xóa</button></td>
+      </tr>`;
   }).join("");
 }
 
-// Hàm chuyển hướng về trang chủ
+// Hàm cập nhật lãi suất và tính lại tổng giá trị đơn hàng
+function updateProfitRate(index, newRate) {
+  let order = orders[index];
+  let oldProfit = order.totalValue * (order.profitRate / 100);
+  order.profitRate = parseFloat(newRate);
+  let newProfit = order.totalValue * (order.profitRate / 100);
+
+  // Cập nhật doanh thu
+  let revenue = JSON.parse(localStorage.getItem("revenue")) || {};
+  if (!revenue[order.date]) {
+    revenue[order.date] = 0;
+  }
+  revenue[order.date] = revenue[order.date] - oldProfit + newProfit;
+  localStorage.setItem("revenue", JSON.stringify(revenue));
+
+  localStorage.setItem("orders", JSON.stringify(orders));
+  updateOrderTable();
+  // Giả sử bạn có hàm updateRevenueReport() để cập nhật ngay báo cáo doanh thu
+  // updateRevenueReport();
+}
+
+//--------------------------------------------------------------------
+// CÁC HÀM TIỆN ÍCH KHÁC
+//--------------------------------------------------------------------
 function quayLai() {
   location.href = "../trang_chu.html"; // Điều chỉnh đường dẫn nếu cần
 }
 
-// Hàm chuyển đổi ngày từ định dạng DD-MM-YYYY sang YYYY-MM-DD
 function formatDateToISO(date) {
   let [day, month, year] = date.split("-");
   return `${year}-${month}-${day}`;
 }
 
-// Hàm chuyển đổi ngày từ YYYY-MM-DD sang DD-MM-YYYY để hiển thị
 function formatDateToDisplay(date) {
   let [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
 }
 
-// Khi trang được tải, cập nhật bảng đơn hàng và hiển thị liên kết doanh thu nếu có đơn hàng
+// Ẩn/hiện các cột lãi suất và lợi nhuận
+function toggleColumns() {
+  let table = document.getElementById("order-table");
+  table.classList.toggle("show-columns");
+}
+
+// Khi trang được tải
 window.onload = function() {
   orders = JSON.parse(localStorage.getItem("orders")) || [];
   updateOrderTable();
+  let revenueLink = document.getElementById("hidden-revenue-link");
   if (orders.length > 0) {
-    document.getElementById("hidden-revenue-link").style.display = "inline-block";
+    revenueLink?.style.setProperty("display", "inline-block");
+    revenueLink?.addEventListener("click", function() {
+      location.href = "../Quan_Ly_khach_hang/Quan_ly_khach_hang.html"; // Điều chỉnh đường dẫn nếu cần
+    });
   } else {
-    document.getElementById("hidden-revenue-link").style.display = "none";
+    revenueLink?.style.setProperty("display", "none");
   }
 };
