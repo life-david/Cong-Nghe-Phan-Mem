@@ -21,7 +21,6 @@ function hienThiThongTinKhachHang() {
   }
 }
 
-
 function themKhachHang() {
   let name = document.getElementById("customer-name").value;
   let phone = document.getElementById("customer-phone").value;
@@ -97,16 +96,4 @@ function quayLai() {
 hienThiKhachHang();
 hienThiThongTinKhachHang();
 
-// Thêm sự kiện cho nút thêm khách hàng
-function hienThiThongTinKhachHang() {
-    let currentCustomer = localStorage.getItem("currentCustomer");
-    if (currentCustomer) {
-        let customer = JSON.parse(currentCustomer);
-        document.getElementById("customerName").value = customer.name || "";
-        document.getElementById("customerPhone").value = customer.phone || "";
-        document.getElementById("customerEmail").value = customer.email || "";
-        document.getElementById("customerAddress").value = customer.address || "";
-        localStorage.removeItem("currentCustomer");
-    }
-}
 document.addEventListener("DOMContentLoaded", hienThiThongTinKhachHang);

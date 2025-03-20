@@ -7,14 +7,19 @@ function updateRevenueReport() {
   let revenue = JSON.parse(localStorage.getItem("revenue")) || {};
   let reportList = document.getElementById("report-list");
   reportList.innerHTML = "";
-  for (let date in revenue) {
+
+  // Chuyển đổi các ngày thành đối tượng Date và sắp xếp chúng
+  let sortedDates = Object.keys(revenue).sort((a, b) => new Date(a) - new Date(b));
+
+  // Hiển thị báo cáo doanh thu theo thứ tự đã sắp xếp
+  sortedDates.forEach(date => {
     let displayDate = formatDateToDisplay(date);
     reportList.innerHTML += `<tr>
       <td>${displayDate}</td>
       <td>${revenue[date].toLocaleString()} VNĐ</td>
       <td><button class="delete-btn" onclick="deleteRevenue('${date}')">Xóa</button></td>
     </tr>`;
-  }
+  });
 }
 
 function deleteRevenue(date) {

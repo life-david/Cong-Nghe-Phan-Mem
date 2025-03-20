@@ -2,6 +2,7 @@
 let books = JSON.parse(localStorage.getItem("books")) || [];
 
 function hienThiSach() {
+  sapXepSach(); // Sắp xếp sách trước khi hiển thị
   const bookList = document.getElementById("book-list");
   bookList.innerHTML = books.map((book, index) => {
     return `<tr>
@@ -9,11 +10,15 @@ function hienThiSach() {
       <td>${book.author}</td>
       <td>${book.publisher}</td>
       <td>${book.category}</td>
-      <td>${book.quantity}</td>
+      <td><input type="number" value="${book.quantity}" onchange="capNhatSoLuong(${index}, this.value)" /></td>
       <td>${parseFloat(book.totalPrice).toLocaleString()}</td>
       <td><button class="delete-btn" onclick="xoaSach(${index})">Xóa</button></td>
     </tr>`;
   }).join("");
+}
+
+function sapXepSach() {
+  books.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function themSach() {
@@ -43,6 +48,18 @@ function xoaSach(index) {
     books.splice(index, 1);
     localStorage.setItem("books", JSON.stringify(books));
     hienThiSach();
+  }
+}
+
+function capNhatSoLuong(index, newQuantity) {
+  newQuantity = parseInt(newQuantity);
+  if(!isNaN(newQuantity) && newQuantity >= 0){
+    books[index].quantity = newQuantity;
+    books[index].totalPrice = books[index].quantity * books[index].price;
+    localStorage.setItem("books", JSON.stringify(books));
+    hienThiSach();
+  } else {
+    alert("Số lượng không hợp lệ!");
   }
 }
 

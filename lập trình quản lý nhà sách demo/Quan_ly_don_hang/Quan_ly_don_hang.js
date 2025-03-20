@@ -33,10 +33,6 @@ function taoDonHang() {
 
   if (formattedId && date && customer) {
     orderHeader = { id: formattedId, date: formatDateToISO(date), customer };
-    // Lưu tên khách hàng vào localStorage (nếu cần)
-    let customerData = { name, phone, email, address };
-localStorage.setItem("currentCustomer", JSON.stringify(customerData));
-
     // Mở panel chọn sách
     openBookPanel();
   } else {
@@ -198,42 +194,42 @@ function saveCustomerInfo() {
 }
 
 // Tải thông tin khách hàng sang trang Quản Lý Khách Hàng
-// Tải thông tin khách hàng sang trang Quản Lý Khách Hàng
 function exportToCustomerPage() {
-    if (currentCustomerIndex === null || currentCustomerIndex === undefined) {
-        alert("Vui lòng chọn một khách hàng!");
-        return;
-    }
+  let nameInput = document.getElementById("customer-name").value;
+  let emailInput = document.getElementById("customer-email").value;
+  let phoneInput = document.getElementById("customer-phone").value;
+  let addressInput = document.getElementById("customer-address").value;
 
-    let order = orders[currentCustomerIndex];
+  // Tạo đối tượng thông tin khách hàng
+  const customerInfo = {
+    name: nameInput,
+    email: emailInput,
+    phone: phoneInput,
+    address: addressInput
+  };
 
-    if (!order || !order.customerInfo) {
-        alert("Không tìm thấy thông tin khách hàng để tải!");
-        return;
-    }
+  // Lưu vào LocalStorage
+  localStorage.setItem("currentCustomer", JSON.stringify(customerInfo));
 
-    // Lưu vào LocalStorage
-    localStorage.setItem("selectedCustomer", JSON.stringify(order.customerInfo));
-
-    // Hiển thị thông báo & chuyển hướng
-    alert("Đã tải thông tin sang Quản Lý Khách Hàng!");
-    window.location.href = "Quan_Ly_khach_hang.html"; // Chuyển trang ngay lập tức
+  // Hiển thị thông báo & chuyển hướng
+  alert("Đã tải thông tin sang Quản Lý Khách Hàng!");
+  window.location.href = "../Quan_ly_khach_hang/Quan_ly_khach_hang.html"; // Điều chỉnh đường dẫn nếu cần
 }
 
 function loadCustomerInfo() {
-    let data = localStorage.getItem("selectedCustomer");
-    if (!data) {
-        alert("Không có dữ liệu khách hàng!");
-        return;
-    }
+  let data = localStorage.getItem("selectedCustomer");
+  if (!data) {
+    alert("Không có dữ liệu khách hàng!");
+    return;
+  }
 
-    let customer = JSON.parse(data);
+  let customer = JSON.parse(data);
 
-    // Hiển thị dữ liệu vào bảng hoặc form
-    document.getElementById("customerName").innerText = customer.name;
-    document.getElementById("customerPhone").innerText = customer.phone;
-    document.getElementById("customerEmail").innerText = customer.email;
-    document.getElementById("customerAddress").innerText = customer.address;
+  // Hiển thị dữ liệu vào bảng hoặc form
+  document.getElementById("customerName").innerText = customer.name;
+  document.getElementById("customerPhone").innerText = customer.phone;
+  document.getElementById("customerEmail").innerText = customer.email;
+  document.getElementById("customerAddress").innerText = customer.address;
 }
 
 // Khi trang load, tự động gọi hàm này
@@ -308,6 +304,10 @@ function xoaHetMa() {
 //--------------------------------------------------------------------
 function updateOrderTable() {
   let orderList = document.getElementById("order-list");
+
+  // Sắp xếp đơn hàng theo thứ tự thời gian từ trước đến sau
+  orders.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   orderList.innerHTML = orders.map((order, index) => {
     let displayDate = formatDateToDisplay(order.date);
     let profitRate = order.profitRate || 20;

@@ -209,3 +209,9 @@ td:hover {
     padding: 2px 5px;
     border-radius: 3px;
 }
+
+.employee-panel h3,
+.employee-panel label {
+    color: rgb(255, 255, 255);
+    /* Thay đổi màu chữ thành màu trắng */
+}

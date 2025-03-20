@@ -38,6 +38,7 @@ function timNhanVien() {
 }
 
 function hienThiNhanVien(filteredList = employees) {
+    sapXepNhanVien(); // Sắp xếp nhân viên trước khi hiển thị
     let list = document.getElementById("employee-list");
     list.innerHTML = filteredList.map(employee => {
         let highlightedName = highlightText(employee.name, employee.highlight);
@@ -57,6 +58,10 @@ function hienThiNhanVien(filteredList = employees) {
     }).join("");
 }
 
+function sapXepNhanVien() {
+    employees.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 function highlightText(text, keyword) {
     if (!keyword || !text.toLowerCase().includes(keyword)) return text;
     let regex = new RegExp(`(${keyword})`, "gi");
@@ -65,6 +70,27 @@ function highlightText(text, keyword) {
 
 function quayLai() {
     location.href = "../trang_chu.html"; // Adjust the path as necessary
+}
+
+function saveEmployeeInfo() {
+    let name = document.getElementById("employee-name").value;
+    let email = document.getElementById("employee-email").value;
+    let phone = document.getElementById("employee-phone").value;
+    let address = document.getElementById("employee-address").value;
+
+    if (name && email && phone && address) {
+        let index = employees.findIndex(employee => employee.name === name);
+        if (index !== -1) {
+            employees[index] = { name, email, phone, address };
+        } else {
+            employees.push({ name, email, phone, address });
+        }
+        localStorage.setItem("employees", JSON.stringify(employees));
+        hienThiNhanVien();
+        alert("Thông tin nhân viên đã được lưu.");
+    } else {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+    }
 }
 
 // Hiển thị danh sách nhân viên khi tải trang
