@@ -77,6 +77,10 @@ function hienThiKhachHang(filteredList = customers) {
   }).join("");
 }
 
+function sapXepKhachHang() {
+  customers.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 function capNhatKhachHang(index, field, value) {
   customers[index][field] = value;
   localStorage.setItem("customers", JSON.stringify(customers));
