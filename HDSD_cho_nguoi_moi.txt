@@ -1,0 +1,14 @@
+*Cách để tải code từ github về máy cho người không dùng github
+Truy cập đường link sau để tải thư mục code về : https://download-directory.github.io/
+Dán đường dẫn github của code: https://github.com/life-david/Cong-Nghe-Phan-Mem
+Lưu thư mục code về sau đó mở bằng VSCode
+
+*Cách git clone code cho người đã sử dụng git
+Tạo thư mục mới rồi nhấn Shift chọn Open PowerShell window here
+gõ lệnh : git clone https://github.com/life-david/Cong-Nghe-Phan-Mem.git
+          cd Cong-Nghe-Phan-Mem
+
+*Cách chạy code
+Giải nén folder, Mở folder trên VSCode
+Tải extesion Live Server
+Nhấn Go Live phần code trang_chu.html trong thư mục lập lịch quản lý nhà sách demo
